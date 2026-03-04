@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TimeSync Pro - Remote Team Time Zone Visualizer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .controls {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .control-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            color: #555;
+            font-size: 0.9rem;
+        }
+
+        .input-group input, .input-group select {
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #6c757d;
+            border: 2px solid #e9ecef;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .visualizer {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            margin-bottom: 25px;
+        }
+
+        .time-header {
+            display: grid;
+            grid-template-columns: 250px repeat(24, 1fr);
+            gap: 1px;
+            margin-bottom: 15px;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+            padding: 10px 0;
+        }
+
+        .time-label {
+            background: #f8f9fa;
+            padding: 8px 4px;
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #6c757d;
+            border-radius: 4px;
+        }
+
+        .time-label:first-child {
+            background: transparent;
+        }
+
+        .person-row {
+            display: grid;
+            grid-template-columns: 250px repeat(24, 1fr);
+            gap: 1px;
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        .person-info {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-left: 4px solid #667eea;
+        }
+
+        .person-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .person-location {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-bottom: 2px;
+        }
+
+        .person-time {
+            font-size: 0.75rem;
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        .hour-cell {
+            height: 60px;
+            border-radius: 4px;
+            position: relative;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .hour-working {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .hour-sleeping {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+        }
+
+        .hour-break {
+            background: linear-gradient(135deg, #ffc107, #fd7e14);
+            color: white;
+        }
+
+        .hour-overlap {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            box-shadow: inset 0 0 10px rgba(255,255,255,0.2);
+        }
+
+        .hour-cell:hover {
+            transform: scale(1.05);
+            z-index: 5;
+            border-color: #667eea;
+        }
+
+        .meeting-block {
+            position: absolute;
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            z-index: 10;
+            cursor: move;
+            min-height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .meeting-block:hover {
+            transform: scale(1.02);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .legend {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .legend h3 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .legend-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: #555;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .meeting-form {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .person-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        .optimal-times {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .optimal-time {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin: 8px 0;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .time-header, .person-row {
+                grid-template-columns: 200px repeat(24, 30px);
+            }
+            
+            .control-row {
+                flex-direction: column;
+            }
+            
+            .input-group {
+                min-width: unset;
+                width: 100%;
+            }
+        }
+
+        .export-btn {
+            background: linear-gradient(135deg, #17a2b8, #138496);
+            color: white;
+        }
+
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(23, 162, 184, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <h1>⏰ TimeSync Pro</h1>
+            <p>Professional Time Zone Visualizer for Remote Teams</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-row">
+                <div class="input-group">
+                    <label for="personName">Team Member Name</label>
+                    <input type="text" id="personName" placeholder="Enter name">
+                </div>
+                <div class="input-group">
+                    <label for="citySelect">Location</label>
+                    <select id="citySelect">
+                        <option value="">Select a city...</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="workStart">Work Start</label>
+                    <input type="time" id="workStart" value="09:00">
+                </div>
+                <div class="input-group">
+                    <label for="workEnd">Work End</label>
+                    <input type="time" id="workEnd" value="17:00">
+                </div>
+                <button class="btn btn-primary" onclick="addPerson()">
+                    ➕ Add Team Member
+                </button>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalMembers">0</div>
+                <div class="stat-label">Team Members</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="timezoneCount">0</div>
+                <div class="stat-label">Time Zones</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="overlapHours">0</div>
+                <div class="stat-label">Overlap Hours</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="scheduledMeetings">0</div>
+                <div class="stat-label">Scheduled Meetings</div>
+            </div>
+        </div>
+
+        <div class="meeting-form">
+            <h3>📅 Schedule Meeting</h3>
+            <div class="control-row">
+                <div class="input-group">
+                    <label for="meetingTitle">Meeting Title</label>
+                    <input type="text" id="meetingTitle" placeholder="Team Standup">
+                </div>
+                <div class="input-group">
+                    <label for="meetingHour">Hour (UTC)</label>
+                    <select id="meetingHour">
+                        <!-- Hours will be populated by JS -->
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="meetingDuration">Duration</label>
+                    <select id="meetingDuration">
+                        <option value="1">1 hour</option>
+                        <option value="2">2 hours</option>
+                        <option value="3">3 hours</option>
+                        <option value="4">4 hours</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" onclick="scheduleMeeting()">
+                    📅 Schedule Meeting
+                </button>
+            </div>
+        </div>
+
+        <div class="visualizer">
+            <div class="time-header" id="timeHeader">
+                <div class="time-label">Team Members</div>
+            </div>
+            <div id="peopleGrid"></div>
+        </div>
+
+        <div class="optimal-times">
+            <h3>🎯 Optimal Meeting Times</h3>
+            <div id="optimalTimesList"></div>
+        </div>
+
+        <div class="legend">
+            <h3>📊 Legend</h3>
+            <div class="legend-items">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: linear-gradient(135deg, #28a745, #20c997);"></div>
+                    <span>Working Hours</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: linear-gradient(135deg, #6c757d, #495057);"></div>
+                    <span>Sleeping/Off Hours</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: linear-gradient(135deg, #007bff, #0056b3);"></div>
+                    <span>Team Overlap</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: linear-gradient(135deg, #dc3545, #c82333);"></div>
+                    <span>Scheduled Meeting</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="control-row" style="justify-content: center;">
+                <button class="btn btn-secondary" onclick="clearAll()">
+                    🗑️ Clear All
+                </button>
+                <button class="btn export-btn" onclick="exportSchedule()">
+                    📊 Export Schedule
+                </button>
+                <button class="btn btn-primary" onclick="findOptimalTime()">
+                    🎯 Find Best Meeting Time
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global data
+        let people = [];
+        let meetings = [];
+        let draggedMeeting = null;
+
+        // Major cities with their timezones
+        const cities = [
+            { name: "New York", timezone: "America/New_York", country: "USA" },
+            { name: "Los Angeles", timezone: "America/Los_Angeles", country: "USA" },
+            { name: "Chicago", timezone: "America/Chicago", country: "USA" },
+            { name: "London", timezone: "Europe/London", country: "UK" },
+            { name: "Paris", timezone: "Europe/Paris", country: "France" },
+            { name: "Berlin", timezone: "Europe/Berlin", country: "Germany" },
+            { name: "Tokyo", timezone: "Asia/Tokyo", country: "Japan" },
+            { name: "Sydney", timezone: "Australia/Sydney", country: "Australia" },
+            { name: "Singapore", timezone: "Asia/Singapore", country: "Singapore" },
+            { name: "Dubai", timezone: "Asia/Dubai", country: "UAE" },
+            { name: "Mumbai", timezone: "Asia/Kolkata", country: "India" },
+            { name: "São Paulo", timezone: "America/Sao_Paulo", country: "Brazil" },
+            { name: "Mexico City", timezone: "America/Mexico_City", country: "Mexico" },
+            { name: "Toronto", timezone: "America/Toronto", country: "Canada" },
+            { name: "Vancouver", timezone: "America/Vancouver", country: "Canada" },
+            { name: "Moscow", timezone: "Europe/Moscow", country: "Russia" },
+            { name: "Seoul", timezone: "Asia/Seoul", country: "South Korea" },
+            { name: "Hong Kong", timezone: "Asia/Hong_Kong", country: "Hong Kong" },
+            { name: "Shanghai", timezone: "Asia/Shanghai", country: "China" },
+            { name: "Bangkok", timezone: "Asia/Bangkok", country: "Thailand" },
+            { name: "Amsterdam", timezone: "Europe/Amsterdam", country: "Netherlands" },
+            { name: "Stockholm", timezone: "Europe/Stockholm", country: "Sweden" },
+            { name: "Zurich", timezone: "Europe/Zurich", country: "Switzerland" },
+            { name: "Cape Town", timezone: "Africa/Cape_Town", country: "South Africa" },
+            { name: "Cairo", timezone: "Africa/Cairo", country: "Egypt" },
+            { name: "Tel Aviv", timezone: "Asia/Jerusalem", country: "Israel" },
+            { name: "Istanbul", timezone: "Europe/Istanbul", country: "Turkey" },
+            { name: "Manila", timezone: "Asia/Manila", country: "Philippines" }
+        ];
+
+        function initializeApp() {
+            populateCitySelect();
+            populateMeetingHours();
+            initializeTimeHeader();
+            updateStats();
+        }
+
+        function populateCitySelect() {
+            const select = document.getElementById('citySelect');
+            cities.forEach(city => {
+                const option = document.createElement('option');
+                option.value = JSON.stringify(city);
+                option.textContent = `${city.name}, ${city.country}`;
+                select.appendChild(option);
+            });
+        }
+
+        function populateMeetingHours() {
+            const select = document.getElementById('meetingHour');
+            for (let i = 0; i < 24; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `${i.toString().padStart(2, '0')}:00 UTC`;
+                select.appendChild(option);
+            }
+        }
+
+        function initializeTimeHeader() {
+            const timeHeader = document.getElementById('timeHeader');
+            for (let hour = 0; hour < 24; hour++) {
+                const timeLabel = document.createElement('div');
+                timeLabel.className = 'time-label';
+                timeLabel.textContent = `${hour.toString().padStart(2, '0')}:00`;
+                timeHeader.appendChild(timeLabel);
+            }
+        }
+
+        function addPerson() {
+            const name = document.getElementById('personName').value.trim();
+            const cityData = document.getElementById('citySelect').value;
+            const workStart = document.getElementById('workStart').value;
+            const workEnd = document.getElementById('workEnd').value;
+
+            if (!name || !cityData) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            const city = JSON.parse(cityData);
+            
+            const person = {
+                id: Date.now(),
+                name,
+                city: city.name,
+                country: city.country,
+                timezone: city.timezone,
+                workStart,
+                workEnd
+            };
+
+            people.push(person);
+            renderPeople();
+            updateStats();
+            findOptimalMeetingTimes();
+            
+            // Clear form
+            document.getElementById('personName').value = '';
+            document.getElementById('citySelect').value = '';
+        }
+
+        function deletePerson(personId) {
+            people = people.filter(p => p.id !== personId);
+            renderPeople();
+            updateStats();
+            findOptimalMeetingTimes();
+        }
+
+        function renderPeople() {
+            const grid = document.getElementById('peopleGrid');
+            grid.innerHTML = '';
+
+            people.forEach(person => {
+                const row = document.createElement('div');
+                row.className = 'person-row';
+                row.id = `person-${person.id}`;
+
+                // Person info
+                const personInfo = document.createElement('div');
+                personInfo.className = 'person-info';
+                
+                const currentTime = getCurrentTimeInTimezone(person.timezone);
+                
+                personInfo.innerHTML = `
+                    <div class="person-name">${person.name}</div>
+                    <div class="person-location">${person.city}, ${person.country}</div>
+                    <div class="person-time">${currentTime}</div>
+                    <button class="delete-btn" onclick="deletePerson(${person.id})">Remove</button>
+                `;
+                row.appendChild(personInfo);
+
+                // Hour cells
+                for (let hour = 0; hour < 24; hour++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'hour-cell';
+                    cell.dataset.hour = hour;
+                    cell.dataset.personId = person.id;
+
+                    const localHour = getLocalHour(hour, person.timezone);
+                    const isWorkingHour = isWithinWorkingHours(localHour, person.workStart, person.workEnd);
+
+                    if (isWorkingHour) {
+                        cell.classList.add('hour-working');
+                    } else {
+                        cell.classList.add('hour-sleeping');
+                    }
+
+                    cell.addEventListener('click', () => quickScheduleMeeting(hour));
+                    row.appendChild(cell);
+                }
+
+                grid.appendChild(row);
+            });
+
+            highlightOverlaps();
+            renderMeetings();
+        }
+
+        function getCurrentTimeInTimezone(timezone) {
+            try {
+                return new Date().toLocaleTimeString('en-US', {
+                    timeZone: timezone,
+                    hour12: false,
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            } catch (e) {
+                return 'N/A';
+            }
+        }
+
+        function getLocalHour(utcHour, timezone) {
+            try {
+                const utcDate = new Date();
+                utcDate.setUTCHours(utcHour, 0, 0, 0);
+                
+                const localTime = new Date(utcDate.toLocaleString("en-US", {timeZone: timezone}));
+                return localTime.getHours();
+            } catch (e) {
+                return utcHour;
+            }
+        }
+
+        function isWithinWorkingHours(hour, workStart, workEnd) {
+            const startHour = parseInt(workStart.split(':')[0]);
+            const endHour = parseInt(workEnd.split(':')[0]);
+            
+            if (startHour <= endHour) {
+                return hour >= startHour && hour < endHour;
+            } else {
+                // Crossing midnight
+                return hour >= startHour || hour < endHour;
+            }
+        }
+
+        function highlightOverlaps() {
+            if (people.length < 2) return;
+
+            for (let hour = 0; hour < 24; hour++) {
+                const workingPeople = people.filter(person => {
+                    const localHour = getLocalHour(hour, person.timezone);
+                    return isWithinWorkingHours(localHour, person.workStart, person.workEnd);
+                });
+
+                if (workingPeople.length >= 2) {
+                    workingPeople.forEach(person => {
+                        const cell = document.querySelector(`[data-hour="${hour}"][data-person-id="${person.id}"]`);
+                        if (cell) {
+                            cell.classList.remove('hour-working');
+                            cell.classList.add('hour-overlap');
+                        }
+                    });
+                }
+            }
+        }
+
+        function scheduleMeeting() {
+            const title = document.getElementById('meetingTitle').value.trim();
+            const hour = parseInt(document.getElementById('meetingHour').value);
+            const duration = parseInt(document.getElementById('meetingDuration').value);
+
+            if (!title) {
+                alert('Please enter a meeting title');
+                return;
+            }
+
+            const meeting = {
+                id: Date.now(),
+                title,
+                hour,
+                duration
+            };
+
+            meetings.push(meeting);
+            renderMeetings();
+            updateStats();
+            
+            // Clear form
+            document.getElementById('meetingTitle').value = '';
+        }
+
+        function quickScheduleMeeting(hour) {
+            const title = prompt('Enter meeting title:');
+            if (!title) return;
+
+            const meeting = {
+                id: Date.now(),
+                title,
+                hour,
+                duration: 1
+            };
+
+            meetings.push(meeting);
+            renderMeetings();
+            updateStats();
+        }
+
+        function renderMeetings() {
+            // Clear existing meetings
+            document.querySelectorAll('.meeting-block').forEach(block => block.remove());
+
+            meetings.forEach(meeting => {
+                for (let i = 0; i < meeting.duration; i++) {
+                    const targetHour = (meeting.hour + i) % 24;
+                    
+                    people.forEach(person => {
+                        const cell = document.querySelector(`[data-hour="${targetHour}"][data-person-id="${person.id}"]`);
+                        if (cell) {
+                            const meetingBlock = document.createElement('div');
+                            meetingBlock.className = 'meeting-block';
+                            meetingBlock.textContent = meeting.title;
+                            meetingBlock.dataset.meetingId = meeting.id;
+                            meetingBlock.draggable = true;
+                            
+                            meetingBlock.addEventListener('dragstart', handleDragStart);
+                            meetingBlock.addEventListener('dblclick', () => deleteMeeting(meeting.id));
+                            
+                            cell.style.position = 'relative';
+                            cell.appendChild(meetingBlock);
+                        }
+                    });
+                }
+            });
+        }
+
+        function handleDragStart(e) {
+            draggedMeeting = e.target.dataset.meetingId;
+        }
+
+        function deleteMeeting(meetingId) {
+            if (confirm('Delete this meeting?')) {
+                meetings = meetings.filter(m => m.id != meetingId);
+                renderMeetings();
+                updateStats();
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('totalMembers').textContent = people.length;
+            
+            const uniqueTimezones = new Set(people.map(p => p.timezone));
+            document.getElementById('timezoneCount').textContent = uniqueTimezones.size;
+            
+            const overlapHours = calculateOverlapHours();
+            document.getElementById('overlapHours').textContent = overlapHours;
+            
+            document.getElementById('scheduledMeetings').textContent = meetings.length;
+        }
+
+        function calculateOverlapHours() {
+            if (people.length < 2) return 0;
+            
+            let overlapCount = 0;
+            for (let hour = 0; hour < 24; hour++) {
+                const workingPeople = people.filter(person => {
+                    const localHour = getLocalHour(hour, person.timezone);
+                    return isWithinWorkingHours(localHour, person.workStart, person.workEnd);
+                });
+                
+                if (workingPeople.length >= 2) {
+                    overlapCount++;
+                }
+            }
+            return overlapCount;
+        }
+
+        function findOptimalMeetingTimes() {
+            const optimalList = document.getElementById('optimalTimesList');
+            optimalList.innerHTML = '';
+
+            if (people.length < 2) {
+                optimalList.innerHTML = '<p>Add at least 2 team members to find optimal meeting times.</p>';
+                return;
+            }
+
+            const optimalTimes = [];
+            
+            for (let hour = 0; hour < 24; hour++) {
+                const workingPeople = people.filter(person => {
+                    const localHour = getLocalHour(hour, person.timezone);
+                    return isWithinWorkingHours(localHour, person.workStart, person.workEnd);
+                });
+
+                if (workingPeople.length >= Math.max(2, Math.floor(people.length * 0.7))) {
+                    const coverage = (workingPeople.length / people.length * 100).toFixed(0);
+                    optimalTimes.push({
+                        hour,
+                        coverage: parseInt(coverage),
+                        count: workingPeople.length,
+                        people: workingPeople.map(p => p.name)
+                    });
+                }
+            }
+
+            optimalTimes.sort((a, b) => b.coverage - a.coverage);
+
+            if (optimalTimes.length === 0) {
+                optimalList.innerHTML = '<p>No optimal meeting times found. Consider adjusting work schedules.</p>';
+                return;
+            }
+
+            optimalTimes.slice(0, 5).forEach(time => {
+                const timeBlock = document.createElement('div');
+                timeBlock.className = 'optimal-time';
+                timeBlock.innerHTML = `
+                    <strong>${time.hour.toString().padStart(2, '0')}:00 UTC</strong> - 
+                    ${time.coverage}% team coverage (${time.count}/${people.length} members)<br>
+                    <small>Available: ${time.people.join(', ')}</small>
+                `;
+                timeBlock.addEventListener('click', () => {
+                    document.getElementById('meetingHour').value = time.hour;
+                    document.getElementById('meetingTitle').focus();
+                });
+                optimalList.appendChild(timeBlock);
+            });
+        }
+
+        function findOptimalTime() {
+            findOptimalMeetingTimes();
+            document.querySelector('.optimal-times').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function clearAll() {
+            if (confirm('Are you sure you want to clear all data?')) {
+                people = [];
+                meetings = [];
+                renderPeople();
+                updateStats();
+                findOptimalMeetingTimes();
+            }
+        }
+
+        function exportSchedule() {
+            if (people.length === 0) {
+                alert('Add team members first');
+                return;
+            }
+
+            const data = {
+                timestamp: new Date().toISOString(),
+                people: people,
+                meetings: meetings,
+                stats: {
+                    totalMembers: people.length,
+                    timezones: [...new Set(people.map(p => p.timezone))].length,
+                    overlapHours: calculateOverlapHours(),
+                    scheduledMeetings: meetings.length
+                }
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `timesync-schedule-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Drag and drop functionality
+        document.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+
+        document.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if (draggedMeeting && e.target.classList.contains('hour-cell')) {
+                const newHour = parseInt(e.target.dataset.hour);
+                const meeting = meetings.find(m => m.id == draggedMeeting);
+                
+                if (meeting) {
+                    meeting.hour = newHour;
+                    renderMeetings();
+                }
+            }
+            draggedMeeting = null;
+        });
+
+        // Auto-refresh current times
+        setInterval(() => {
+            people.forEach(person => {
+                const personInfo = document.querySelector(`#person-${person.id} .person-info`);
+                if (personInfo) {
+                    const currentTime = getCurrentTimeInTimezone(person.timezone);
+                    const timeElement = personInfo.querySelector('.person-time');
+                    if (timeElement) {
+                        timeElement.textContent = currentTime;
+                    }
+                }
+            });
+        }, 30000); // Update every 30 seconds
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key) {
+                    case 's':
+                        e.preventDefault();
+                        exportSchedule();
+                        break;
+                    case 'n':
+                        e.preventDefault();
+                        document.getElementById('personName').focus();
+                        break;
+                    case 'm':
+                        e.preventDefault();
+                        document.getElementById('meetingTitle').focus();
+                        break;
+                }
+            }
+        });
+
+        // Sample data for demo
+        function loadSampleData() {
+            if (people.length > 0) return;
+            
+            // Add sample team members
+            const sampleTeam = [
+                { name: "Sarah Chen", city: JSON.stringify({name: "San Francisco", timezone: "America/Los_Angeles", country: "USA"}), workStart: "09:00", workEnd: "17:00" },
+                { name: "Marcus Johnson", city: JSON.stringify({name: "New York", timezone: "America/New_York", country: "USA"}), workStart: "08:30", workEnd: "16:30" },
+                { name: "Priya Patel", city: JSON.stringify({name: "Mumbai", timezone: "Asia/Kolkata", country: "India"}), workStart: "10:00", workEnd: "18:00" },
+                { name: "James Wilson", city: JSON.stringify({name: "London", timezone: "Europe/London", country: "UK"}), workStart: "09:00", workEnd: "17:00" }
+            ];
+
+            sampleTeam.forEach(member => {
+                document.getElementById('personName').value = member.name;
+                document.getElementById('citySelect').value = member.city;
+                document.getElementById('workStart').value = member.workStart;
+                document.getElementById('workEnd').value = member.workEnd;
+                addPerson();
+            });
+
+            // Add sample meetings
+            setTimeout(() => {
+                document.getElementById('meetingTitle').value = "Daily Standup";
+                document.getElementById('meetingHour').value = "14";
+                document.getElementById('meetingDuration').value = "1";
+                scheduleMeeting();
+
+                document.getElementById('meetingTitle').value = "Weekly Planning";
+                document.getElementById('meetingHour').value = "15";
+                document.getElementById('meetingDuration').value = "2";
+                scheduleMeeting();
+            }, 1000);
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeApp();
+            
+            // Load sample data after a short delay
+            setTimeout(() => {
+                if (confirm('Would you like to load sample data to see how the tool works?')) {
+                    loadSampleData();
+                }
+            }, 1000);
+        });
+
+        // Advanced features
+        function generateTeamReport() {
+            if (people.length === 0) return;
+
+            const report = {
+                generatedAt: new Date().toISOString(),
+                teamOverview: {
+                    totalMembers: people.length,
+                    timezones: [...new Set(people.map(p => p.timezone))],
+                    overlapHours: calculateOverlapHours()
+                },
+                memberDetails: people.map(person => ({
+                    name: person.name,
+                    location: `${person.city}, ${person.country}`,
+                    timezone: person.timezone,
+                    workingHours: `${person.workStart} - ${person.workEnd}`,
+                    currentTime: getCurrentTimeInTimezone(person.timezone)
+                })),
+                meetings: meetings.map(meeting => ({
+                    title: meeting.title,
+                    utcTime: `${meeting.hour.toString().padStart(2, '0')}:00`,
+                    duration: `${meeting.duration} hour(s)`,
+                    attendees: people.length
+                }))
+            };
+
+            console.log('Team Report Generated:', report);
+            return report;
+        }
+
+        // Export to calendar format (ICS)
+        function exportToCalendar() {
+            if (meetings.length === 0) {
+                alert('No meetings to export');
+                return;
+            }
+
+            let icsContent = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//TimeSync Pro//EN\n`;
+            
+            meetings.forEach(meeting => {
+                const startDate = new Date();
+                startDate.setUTCHours(meeting.hour, 0, 0, 0);
+                const endDate = new Date(startDate);
+                endDate.setUTCHours(meeting.hour + meeting.duration, 0, 0, 0);
+
+                const formatDate = (date) => date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+                
+                icsContent += `BEGIN:VEVENT\n`;
+                icsContent += `UID:${meeting.id}@timesync.pro\n`;
+                icsContent += `DTSTART:${formatDate(startDate)}\n`;
+                icsContent += `DTEND:${formatDate(endDate)}\n`;
+                icsContent += `SUMMARY:${meeting.title}\n`;
+                icsContent += `DESCRIPTION:Remote team meeting scheduled via TimeSync Pro\n`;
+                icsContent += `END:VEVENT\n`;
+            });
+
+            icsContent += `END:VCALENDAR`;
+
+            const blob = new Blob([icsContent], { type: 'text/calendar' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `timesync-meetings.ics`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Add calendar export button to controls
+        setTimeout(() => {
+            const controlRow = document.querySelector('.controls .control-row:last-child');
+            const calendarBtn = document.createElement('button');
+            calendarBtn.className = 'btn btn-secondary';
+            calendarBtn.innerHTML = '📅 Export to Calendar';
+            calendarBtn.onclick = exportToCalendar;
+            controlRow.appendChild(calendarBtn);
+        }, 100);
+    </script>
+</body>
+</html>
