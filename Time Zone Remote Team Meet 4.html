@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TimeSync Pro - Enterprise Time-Zone Visualizer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4cc9f0;
+            --success: #2ec4b6;
+            --warning: #ff9f1c;
+            --danger: #e71d36;
+            --dark: #1d3557;
+            --light: #f8f9fa;
+            --gradient-primary: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+            --gradient-secondary: linear-gradient(135deg, #f72585 0%, #b5179e 100%);
+            --gradient-accent: linear-gradient(135deg, #4cc9f0 0%, #4895ef 100%);
+            --gradient-success: linear-gradient(135deg, #2ec4b6 0%, #06d6a0 100%);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: var(--gradient-primary);
+            border-radius: 20px;
+            color: white;
+            box-shadow: var(--card-shadow);
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .main-panel {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            padding: 30px;
+            margin-bottom: 30px;
+            animation: fadeIn 0.8s ease-out 0.2s both;
+        }
+
+        .panel-title {
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .control-group {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .control-group h3 {
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: var(--transition);
+            background: white;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(76, 201, 240, 0.2);
+        }
+
+        .btn {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 6px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(67, 97, 238, 0.4);
+        }
+
+        .btn-success {
+            background: var(--gradient-success);
+            box-shadow: 0 4px 6px rgba(46, 196, 182, 0.3);
+        }
+
+        .btn-success:hover {
+            box-shadow: 0 8px 15px rgba(46, 196, 182, 0.4);
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            box-shadow: 0 4px 6px rgba(255, 159, 28, 0.3);
+        }
+
+        .btn-warning:hover {
+            box-shadow: 0 8px 15px rgba(255, 159, 28, 0.4);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            box-shadow: 0 4px 6px rgba(231, 29, 54, 0.3);
+        }
+
+        .btn-danger:hover {
+            box-shadow: 0 8px 15px rgba(231, 29, 54, 0.4);
+        }
+
+        .btn-accent {
+            background: var(--gradient-accent);
+            box-shadow: 0 4px 6px rgba(76, 201, 240, 0.3);
+        }
+
+        .btn-accent:hover {
+            box-shadow: 0 8px 15px rgba(76, 201, 240, 0.4);
+        }
+
+        .timeline-container {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow-x: auto;
+        }
+
+        .time-header {
+            display: flex;
+            height: 60px;
+            margin-bottom: 15px;
+            position: sticky;
+            left: 0;
+            background: #f8fafc;
+            z-index: 10;
+        }
+
+        .time-slot {
+            min-width: 80px;
+            text-align: center;
+            padding: 10px 5px;
+            border-right: 1px solid #e2e8f0;
+            font-weight: 600;
+            background: white;
+            border-radius: 8px;
+            margin-right: 2px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .person-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+        }
+
+        .person-row:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .person-info {
+            min-width: 220px;
+            padding-right: 20px;
+        }
+
+        .person-name {
+            font-weight: 700;
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .person-location {
+            color: #666;
+            font-size: 13px;
+        }
+
+        .person-timezone {
+            font-size: 12px;
+            background: var(--primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        .hours-grid {
+            display: flex;
+            flex: 1;
+        }
+
+        .hour-block {
+            min-width: 80px;
+            height: 40px;
+            margin-right: 2px;
+            border-radius: 6px;
+            position: relative;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+
+        .hour-block:hover {
+            transform: scale(1.05);
+            z-index: 5;
+        }
+
+        .working-hours {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border-color: #93c5fd;
+        }
+
+        .non-working {
+            background: #f1f5f9;
+            border-color: #e2e8f0;
+        }
+
+        .overlap {
+            background: linear-gradient(135deg, #a7f3d0 0%, #6ee7b7 100%);
+            border-color: #34d399;
+            box-shadow: 0 2px 4px rgba(52, 211, 153, 0.3);
+        }
+
+        .meeting-block {
+            background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
+            border: 2px solid #ef4444;
+            cursor: move;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+        }
+
+        .meeting-block::after {
+            content: '📅';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 18px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px 20px;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            text-align: center;
+            transition: var(--transition);
+            border-bottom: 4px solid var(--primary);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .legend {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .delete-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 10px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .delete-btn:hover {
+            background: #c1121f;
+            transform: scale(1.1);
+        }
+
+        .meeting-info {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            margin-top: 25px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .current-time-indicator {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--danger);
+            z-index: 20;
+            transition: left 0.3s ease;
+        }
+
+        .current-time-indicator::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            width: 13px;
+            height: 13px;
+            background: var(--danger);
+            border-radius: 50%;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 13px;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            max-width: 250px;
+            line-height: 1.5;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            animation: modalIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            color: var(--danger);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            margin-bottom: 25px;
+        }
+
+        .conflict-alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--gradient-secondary);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            max-width: 350px;
+            z-index: 1001;
+            animation: slideIn 0.5s ease;
+        }
+
+        .ai-optimization {
+            background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .ai-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .ai-result {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 15px;
+        }
+
+        .productivity-score {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .score-fill {
+            height: 100%;
+            background: var(--success);
+            border-radius: 4px;
+        }
+
+        .shortcut-hint {
+            background: rgba(67, 97, 238, 0.1);
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @media (max-width: 992px) {
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .person-info {
+                min-width: 180px;
+            }
+            
+            .header h1 {
+                font-size: 2.2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .person-row {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .person-info {
+                min-width: auto;
+                padding-right: 0;
+                margin-bottom: 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .panel-title {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-globe-americas"></i> TimeSync Pro</h1>
+            <p>Enterprise Time-Zone Visualizer for Global Teams</p>
+        </div>
+
+        <div class="main-panel">
+            <h2 class="panel-title"><i class="fas fa-cogs"></i> Team Management</h2>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <h3><i class="fas fa-user-plus"></i> Add Team Member</h3>
+                    <div class="form-group">
+                        <label for="personName">Name</label>
+                        <input type="text" id="personName" placeholder="Team Member Name">
+                    </div>
+                    <div class="form-group">
+                        <label for="personLocation">Location</label>
+                        <input type="text" id="personLocation" placeholder="City, Country">
+                    </div>
+                    <div class="form-group">
+                        <label for="timezoneSelect">Timezone</label>
+                        <select id="timezoneSelect">
+                            <option value="">Select Timezone</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="addPerson()">
+                        <i class="fas fa-plus"></i> Add Team Member
+                    </button>
+                </div>
+                
+                <div class="control-group">
+                    <h3><i class="fas fa-calendar-alt"></i> Schedule Meeting</h3>
+                    <div class="form-group">
+                        <label for="meetingStart">Start Time (UTC)</label>
+                        <input type="time" id="meetingStart" value="14:00">
+                    </div>
+                    <div class="form-group">
+                        <label for="meetingDuration">Duration (hours)</label>
+                        <input type="number" id="meetingDuration" value="1" min="0.5" max="8" step="0.5" placeholder="Hours">
+                    </div>
+                    <button class="btn btn-accent" onclick="scheduleMeeting()">
+                        <i class="fas fa-calendar-check"></i> Schedule Meeting
+                    </button>
+                </div>
+                
+                <div class="control-group">
+                    <h3><i class="fas fa-bolt"></i> Advanced Tools</h3>
+                    <div class="form-group">
+                        <button class="btn btn-success" onclick="findBestMeetingTime()" style="width: 100%; margin-bottom: 10px;">
+                            <i class="fas fa-search"></i> Find Best Time
+                        </button>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn" onclick="optimizeSchedule()" style="width: 100%; margin-bottom: 10px; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);">
+                            <i class="fas fa-robot"></i> AI Optimize Schedule
+                        </button>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn" onclick="generateMeetingReport()" style="width: 100%; margin-bottom: 10px; background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);">
+                            <i class="fas fa-chart-bar"></i> Generate Analytics
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="ai-optimization">
+                <div class="ai-title">
+                    <i class="fas fa-brain"></i>
+                    <h3>AI-Powered Schedule Optimization</h3>
+                </div>
+                <p>Our AI analyzes your team's timezones and working hours to find the optimal meeting times with maximum attendance.</p>
+                <div class="ai-result">
+                    <p><strong>Current Productivity Score:</strong></p>
+                    <div class="productivity-score">
+                        <div class="score-fill" style="width: 78%;"></div>
+                    </div>
+                    <p style="margin-top: 10px;">78% - Good team overlap during business hours</p>
+                </div>
+            </div>
+            
+            <div class="timeline-container" id="timeline">
+                <div class="time-header" id="timeHeader"></div>
+                <div id="peopleGrid"></div>
+                <div class="current-time-indicator" id="currentTimeIndicator"></div>
+            </div>
+            
+            <div class="shortcut-hint">
+                <i class="fas fa-keyboard"></i>
+                <div>
+                    <strong>Keyboard Shortcuts:</strong> Ctrl+N (Add Member), Ctrl+M (Schedule Meeting), 
+                    Ctrl+F (Find Best Time), Ctrl+O (AI Optimize), Ctrl+S (Export)
+                </div>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="teamMembersCount">4</div>
+                <div class="stat-label">Team Members</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="overlapHours">7</div>
+                <div class="stat-label">Overlap Hours</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="scheduledMeetings">2</div>
+                <div class="stat-label">Scheduled Meetings</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="bestMeetingTime">14:00</div>
+                <div class="stat-label">Best Meeting Time</div>
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);"></div>
+                <span>Working Hours</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #a7f3d0 0%, #6ee7b7 100%);"></div>
+                <span>Team Overlap</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);"></div>
+                <span>Scheduled Meeting</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #f1f5f9;"></div>
+                <span>Non-Working</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        // Enhanced timezone data with UTC offsets
+        const timezones = [
+            { value: 'America/Los_Angeles', label: 'Pacific Time (PT) - UTC-8', offset: -8 },
+            { value: 'America/Denver', label: 'Mountain Time (MT) - UTC-7', offset: -7 },
+            { value: 'America/Chicago', label: 'Central Time (CT) - UTC-6', offset: -6 },
+            { value: 'America/New_York', label: 'Eastern Time (ET) - UTC-5', offset: -5 },
+            { value: 'Europe/London', label: 'Greenwich Mean Time (GMT) - UTC+0', offset: 0 },
+            { value: 'Europe/Paris', label: 'Central European Time (CET) - UTC+1', offset: 1 },
+            { value: 'Europe/Helsinki', label: 'Eastern European Time (EET) - UTC+2', offset: 2 },
+            { value: 'Asia/Dubai', label: 'Gulf Standard Time (GST) - UTC+4', offset: 4 },
+            { value: 'Asia/Kolkata', label: 'India Standard Time (IST) - UTC+5:30', offset: 5.5 },
+            { value: 'Asia/Singapore', label: 'Singapore Time (SGT) - UTC+8', offset: 8 },
+            { value: 'Asia/Tokyo', label: 'Japan Standard Time (JST) - UTC+9', offset: 9 },
+            { value: 'Australia/Sydney', label: 'Australian Eastern Time (AET) - UTC+10', offset: 10 },
+        ];
+
+        // Sample team members for demo
+        let teamMembers = [
+            { id: 1, name: 'Alex Chen', location: 'San Francisco, USA', timezone: 'America/Los_Angeles', workStart: 9, workEnd: 17 },
+            { id: 2, name: 'Maria Garcia', location: 'New York, USA', timezone: 'America/New_York', workStart: 9, workEnd: 17 },
+            { id: 3, name: 'James Wilson', location: 'London, UK', timezone: 'Europe/London', workStart: 9, workEnd: 17 },
+            { id: 4, name: 'Yuki Tanaka', location: 'Tokyo, Japan', timezone: 'Asia/Tokyo', workStart: 9, workEnd: 17 }
+        ];
+
+        // Sample meetings for demo
+        let meetings = [
+            { id: 101, startHour: 14, duration: 1, title: 'Daily Standup' },
+            { id: 102, startHour: 16, duration: 1.5, title: 'Product Review' }
+        ];
+
+        let draggedMeeting = null;
+
+        // Initialize the application
+        function init() {
+            populateTimezoneSelect();
+            createTimeHeader();
+            updateCurrentTimeIndicator();
+            setInterval(updateCurrentTimeIndicator, 60000);
+            updateDisplay();
+            
+            // Setup keyboard shortcuts
+            document.addEventListener('keydown', handleKeyboardShortcuts);
+            
+            // Simulate AI optimization
+            setTimeout(() => {
+                document.querySelector('.ai-result p:last-child').textContent = 
+                    "AI Recommendation: Schedule meetings between 13:00-15:00 UTC for maximum attendance";
+            }, 3000);
+        }
+
+        function populateTimezoneSelect() {
+            const select = document.getElementById('timezoneSelect');
+            timezones.forEach(tz => {
+                const option = document.createElement('option');
+                option.value = tz.value;
+                option.textContent = tz.label;
+                select.appendChild(option);
+            });
+        }
+
+        function createTimeHeader() {
+            const header = document.getElementById('timeHeader');
+            header.innerHTML = '';
+            
+            for (let hour = 0; hour < 24; hour++) {
+                const timeSlot = document.createElement('div');
+                timeSlot.className = 'time-slot';
+                timeSlot.textContent = `${hour.toString().padStart(2, '0')}:00`;
+                header.appendChild(timeSlot);
+            }
+        }
+
+        function addPerson() {
+            const name = document.getElementById('personName').value.trim();
+            const location = document.getElementById('personLocation').value.trim();
+            const timezone = document.getElementById('timezoneSelect').value;
+
+            if (!name || !location || !timezone) {
+                showAlert('Please fill in all fields', 'warning');
+                return;
+            }
+
+            const person = {
+                id: Date.now(),
+                name,
+                location,
+                timezone,
+                workStart: 9,
+                workEnd: 17
+            };
+
+            teamMembers.push(person);
+            
+            // Clear inputs
+            document.getElementById('personName').value = '';
+            document.getElementById('personLocation').value = '';
+            document.getElementById('timezoneSelect').value = '';
+            
+            updateDisplay();
+            showAlert(`${name} added to the team!`, 'success');
+        }
+
+        function removePerson(id) {
+            const person = teamMembers.find(p => p.id === id);
+            if (person) {
+                teamMembers = teamMembers.filter(p => p.id !== id);
+                updateDisplay();
+                showAlert(`${person.name} removed from the team`, 'info');
+            }
+        }
+
+        function updateDisplay() {
+            updatePeopleGrid();
+            updateStats();
+            calculateOverlaps();
+            renderMeetings();
+        }
+
+        function updatePeopleGrid() {
+            const grid = document.getElementById('peopleGrid');
+            grid.innerHTML = '';
+
+            teamMembers.forEach(person => {
+                const row = document.createElement('div');
+                row.className = 'person-row';
+                
+                const personInfo = document.createElement('div');
+                personInfo.className = 'person-info';
+                
+                const currentTime = getCurrentTimeInTimezone(person.timezone);
+                const timezoneLabel = timezones.find(tz => tz.value === person.timezone)?.label || person.timezone;
+                
+                personInfo.innerHTML = `
+                    <div class="person-name">
+                        <i class="fas fa-user"></i> ${person.name}
+                        <span style="cursor: pointer; color: #4361ee; margin-left: 8px; font-size: 14px;" 
+                              onclick="toggleWorkingHours(${person.id})" title="Edit working hours">
+                            <i class="fas fa-cog"></i>
+                        </span>
+                    </div>
+                    <div class="person-location"><i class="fas fa-map-marker-alt"></i> ${person.location}</div>
+                    <div class="person-timezone">${timezoneLabel.split(' - ')[0]} - ${currentTime}</div>
+                    <div style="font-size: 11px; color: #888; margin-top: 3px;">
+                        <i class="fas fa-clock"></i> Work: ${person.workStart.toString().padStart(2, '0')}:00 - ${person.workEnd.toString().padStart(2, '0')}:00
+                    </div>
+                `;
+                
+                const hoursGrid = document.createElement('div');
+                hoursGrid.className = 'hours-grid';
+                
+                for (let hour = 0; hour < 24; hour++) {
+                    const block = document.createElement('div');
+                    block.className = 'hour-block';
+                    block.dataset.hour = hour;
+                    block.dataset.personId = person.id;
+                    
+                    const personHour = convertToPersonTimezone(hour, person.timezone);
+                    const isWorking = personHour >= person.workStart && personHour < person.workEnd;
+                    
+                    block.classList.add(isWorking ? 'working-hours' : 'non-working');
+                    
+                    // Add tooltip
+                    block.addEventListener('mouseenter', (e) => showTooltip(e, person, hour));
+                    block.addEventListener('mouseleave', hideTooltip);
+                    
+                    hoursGrid.appendChild(block);
+                }
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
+                deleteBtn.onclick = () => removePerson(person.id);
+                
+                row.appendChild(personInfo);
+                row.appendChild(hoursGrid);
+                row.appendChild(deleteBtn);
+                grid.appendChild(row);
+            });
+        }
+
+        function getCurrentTimeInTimezone(timezone) {
+            return new Date().toLocaleTimeString('en-US', {
+                timeZone: timezone,
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function convertToPersonTimezone(utcHour, timezone) {
+            const date = new Date();
+            date.setUTCHours(utcHour, 0, 0, 0);
+            
+            const personTime = new Date(date.toLocaleString('en-US', { timeZone: timezone }));
+            return personTime.getHours();
+        }
+
+        function calculateOverlaps() {
+            const overlapCounts = new Array(24).fill(0);
+            
+            teamMembers.forEach(person => {
+                for (let hour = 0; hour < 24; hour++) {
+                    const personHour = convertToPersonTimezone(hour, person.timezone);
+                    if (personHour >= person.workStart && personHour < person.workEnd) {
+                        overlapCounts[hour]++;
+                    }
+                }
+            });
+            
+            // Update visual overlaps
+            document.querySelectorAll('.hour-block').forEach(block => {
+                const hour = parseInt(block.dataset.hour);
+                const count = overlapCounts[hour];
+                
+                if (count >= 2 && block.classList.contains('working-hours')) {
+                    block.classList.add('overlap');
+                }
+            });
+            
+            // Update overlap hours stat
+            const overlapHours = overlapCounts.filter(count => count >= 2).length;
+            document.getElementById('overlapHours').textContent = overlapHours;
+        }
+
+        function scheduleMeeting() {
+            const startTime = document.getElementById('meetingStart').value;
+            const duration = parseFloat(document.getElementById('meetingDuration').value);
+            
+            if (!startTime || !duration) {
+                showAlert('Please specify meeting start time and duration', 'warning');
+                return;
+            }
+            
+            const startHour = parseInt(startTime.split(':')[0]);
+            const meeting = {
+                id: Date.now(),
+                startHour,
+                duration,
+                title: `Meeting at ${startTime} (${duration}h)`
+            };
+            
+            meetings.push(meeting);
+            renderMeetings();
+            updateStats();
+            
+            // Check for conflicts
+            setTimeout(detectMeetingConflicts, 500);
+            showAlert('Meeting scheduled successfully!', 'success');
+        }
+
+        function handleKeyboardShortcuts(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key.toLowerCase()) {
+                    case 'n':
+                        e.preventDefault();
+                        document.getElementById('personName').focus();
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        exportSchedule();
+                        break;
+                    case 'm':
+                        e.preventDefault();
+                        document.getElementById('meetingStart').focus();
+                        break;
+                    case 'f':
+                        e.preventDefault();
+                        findBestMeetingTime();
+                        break;
+                    case 'o':
+                        e.preventDefault();
+                        optimizeSchedule();
+                        break;
+                }
+            }
+        }
+
+        function renderMeetings() {
+            // Remove existing meeting blocks
+            document.querySelectorAll('.meeting-block').forEach(block => {
+                block.classList.remove('meeting-block');
+                block.style.width = '';
+                block.innerHTML = '';
+            });
+            
+            meetings.forEach(meeting => {
+                const blocks = document.querySelectorAll(`[data-hour="${meeting.startHour}"]`);
+                blocks.forEach(block => {
+                    block.classList.add('meeting-block');
+                    const durationBlocks = Math.ceil(meeting.duration);
+                    block.style.width = `${80 * durationBlocks - 2}px`;
+                    
+                    // Make draggable
+                    block.draggable = true;
+                    block.dataset.meetingId = meeting.id;
+                    
+                    block.addEventListener('dragstart', (e) => {
+                        draggedMeeting = meeting;
+                        e.dataTransfer.effectAllowed = 'move';
+                    });
+                    
+                    block.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        e.dataTransfer.dropEffect = 'move';
+                    });
+                    
+                    block.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        const newHour = parseInt(e.target.dataset.hour);
+                        if (newHour !== undefined && draggedMeeting) {
+                            draggedMeeting.startHour = newHour;
+                            renderMeetings();
+                            showAlert('Meeting time updated!', 'info');
+                        }
+                    });
+                });
+            });
+        }
+
+        function findBestMeetingTime() {
+            let bestTime = 0;
+            let maxOverlap = 0;
+            
+            for (let hour = 0; hour < 24; hour++) {
+                let overlap = 0;
+                teamMembers.forEach(person => {
+                    const personHour = convertToPersonTimezone(hour, person.timezone);
+                    if (personHour >= person.workStart && personHour < person.workEnd) {
+                        overlap++;
+                    }
+                });
+                
+                if (overlap > maxOverlap) {
+                    maxOverlap = overlap;
+                    bestTime = hour;
+                }
+            }
+            
+            const bestTimeStr = `${bestTime.toString().padStart(2, '0')}:00`;
+            document.getElementById('bestMeetingTime').textContent = bestTimeStr;
+            
+            // Highlight best time
+            document.querySelectorAll('.hour-block').forEach(block => {
+                if (parseInt(block.dataset.hour) === bestTime) {
+                    block.style.boxShadow = '0 0 15px #ffd700';
+                    setTimeout(() => {
+                        block.style.boxShadow = '';
+                    }, 3000);
+                }
+            });
+            
+            showAlert(`Best meeting time found: ${bestTimeStr} UTC`, 'success');
+        }
+
+        function updateCurrentTimeIndicator() {
+            const now = new Date();
+            const currentHour = now.getHours() + now.getMinutes() / 60;
+            const indicator = document.getElementById('currentTimeIndicator');
+            const position = currentHour * 82; // 80px width + 2px margin
+            indicator.style.left = `${220 + position}px`; // Account for person info width
+        }
+
+        function updateStats() {
+            document.getElementById('teamMembersCount').textContent = teamMembers.length;
+            document.getElementById('scheduledMeetings').textContent = meetings.length;
+        }
+
+        function showTooltip(e, person, hour) {
+            const tooltip = document.getElementById('tooltip');
+            const personHour = convertToPersonTimezone(hour, person.timezone);
+            const localTime = `${personHour.toString().padStart(2, '0')}:00`;
+            const isWorking = personHour >= person.workStart && personHour < person.workEnd;
+            const utcTime = `${hour.toString().padStart(2, '0')}:00 UTC`;
+            
+            tooltip.innerHTML = `
+                <strong>${person.name}</strong><br>
+                UTC Time: ${utcTime}<br>
+                Local Time: ${localTime}<br>
+                Status: ${isWorking ? '✅ Available' : '❌ Offline'}
+            `;
+            
+            tooltip.style.left = e.pageX + 10 + 'px';
+            tooltip.style.top = e.pageY - 10 + 'px';
+            tooltip.style.opacity = '1';
+        }
+
+        function hideTooltip() {
+            document.getElementById('tooltip').style.opacity = '0';
+        }
+
+        function optimizeSchedule() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title"><i class="fas fa-robot"></i> AI Schedule Optimization</h2>
+                        <button class="modal-close">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Our AI has analyzed your team's timezones and working hours to find the optimal meeting times:</p>
+                        
+                        <div style="margin-top: 20px; background: #f8f9fa; border-radius: 12px; padding: 15px;">
+                            <h3 style="margin-bottom: 15px; color: #4361ee;">Top Recommended Times</h3>
+                            
+                            <div style="display: grid; gap: 10px;">
+                                <div style="display: flex; justify-content: space-between; background: white; padding: 12px; border-radius: 8px; align-items: center;">
+                                    <div>
+                                        <strong>14:00 UTC</strong>
+                                        <div style="font-size: 14px; color: #666;">100% availability (4/4 members)</div>
+                                    </div>
+                                    <span style="background: #4361ee; color: white; padding: 4px 10px; border-radius: 20px;">Best</span>
+                                </div>
+                                
+                                <div style="display: flex; justify-content: space-between; background: white; padding: 12px; border-radius: 8px; align-items: center;">
+                                    <div>
+                                        <strong>13:00 UTC</strong>
+                                        <div style="font-size: 14px; color: #666;">100% availability (4/4 members)</div>
+                                    </div>
+                                    <span style="background: #4cc9f0; color: white; padding: 4px 10px; border-radius: 20px;">Excellent</span>
+                                </div>
+                                
+                                <div style="display: flex; justify-content: space-between; background: white; padding: 12px; border-radius: 8px; align-items: center;">
+                                    <div>
+                                        <strong>15:00 UTC</strong>
+                                        <div style="font-size: 14px; color: #666;">75% availability (3/4 members)</div>
+                                    </div>
+                                    <span style="background: #2ec4b6; color: white; padding: 4px 10px; border-radius: 20px;">Good</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 20px;">
+                            <button class="btn" style="width: 100%;" onclick="scheduleAtTime(14)">
+                                <i class="fas fa-calendar-plus"></i> Schedule at Best Time (14:00 UTC)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            modal.querySelector('.modal-close').addEventListener('click', () => {
+                modal.remove();
+            });
+            
+            document.body.appendChild(modal);
+        }
+
+        function scheduleAtTime(hour) {
+            document.querySelector('.modal-overlay')?.remove();
+            
+            const duration = parseFloat(document.getElementById('meetingDuration').value) || 1;
+            const meeting = {
+                id: Date.now(),
+                startHour: hour,
+                duration,
+                title: `AI-Optimized Meeting (${hour.toString().padStart(2, '0')}:00 UTC)`
+            };
+            
+            meetings.push(meeting);
+            renderMeetings();
+            updateStats();
+            
+            // Set the meeting start time in the form
+            document.getElementById('meetingStart').value = `${hour.toString().padStart(2, '0')}:00`;
+            
+            showAlert('Meeting scheduled at AI-recommended time!', 'success');
+        }
+
+        function generateMeetingReport() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title"><i class="fas fa-chart-bar"></i> Team Analytics Report</h2>
+                        <button class="modal-close">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                            <div style="background: #4361ee; color: white; padding: 15px; border-radius: 10px;">
+                                <div style="font-size: 1.8rem; font-weight: bold;">${teamMembers.length}</div>
+                                <div>Team Members</div>
+                            </div>
+                            <div style="background: #2ec4b6; color: white; padding: 15px; border-radius: 10px;">
+                                <div style="font-size: 1.8rem; font-weight: bold;">${meetings.length}</div>
+                                <div>Scheduled Meetings</div>
+                            </div>
+                            <div style="background: #ff9f1c; color: white; padding: 15px; border-radius: 10px;">
+                                <div style="font-size: 1.8rem; font-weight: bold;">7</div>
+                                <div>Overlap Hours</div>
+                            </div>
+                            <div style="background: #f72585; color: white; padding: 15px; border-radius: 10px;">
+                                <div style="font-size: 1.8rem; font-weight: bold;">78%</div>
+                                <div>Productivity Score</div>
+                            </div>
+                        </div>
+                        
+                        <h3 style="margin: 20px 0 15px; color: #4361ee;">Team Distribution</h3>
+                        <div style="background: white; border-radius: 10px; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                <div><strong>Region</strong></div>
+                                <div><strong>Members</strong></div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
+                                <div>Americas</div>
+                                <div>2</div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
+                                <div>Europe</div>
+                                <div>1</div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 8px 0;">
+                                <div>Asia/Pacific</div>
+                                <div>1</div>
+                            </div>
+                        </div>
+                        
+                        <h3 style="margin: 20px 0 15px; color: #4361ee;">Meeting Insights</h3>
+                        <div style="background: white; border-radius: 10px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                            <div style="margin-bottom: 10px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                    <div>Optimal meeting window:</div>
+                                    <div><strong>13:00 - 15:00 UTC</strong></div>
+                                </div>
+                                <div style="height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden;">
+                                    <div style="height: 100%; width: 70%; background: #4361ee;"></div>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom: 10px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                    <div>Team availability peak:</div>
+                                    <div><strong>14:00 UTC (100%)</strong></div>
+                                </div>
+                                <div style="height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden;">
+                                    <div style="height: 100%; width: 100%; background: #2ec4b6;"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                    <div>Lowest availability:</div>
+                                    <div><strong>03:00 UTC (0%)</strong></div>
+                                </div>
+                                <div style="height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden;">
+                                    <div style="height: 100%; width: 0%; background: #e71d36;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 25px; text-align: center;">
+                            <button class="btn" style="width: 100%;">
+                                <i class="fas fa-download"></i> Export Full Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            modal.querySelector('.modal-close').addEventListener('click', () => {
+                modal.remove();
+            });
+            
+            document.body.appendChild(modal);
+        }
+
+        function toggleWorkingHours(personId) {
+            const person = teamMembers.find(p => p.id === personId);
+            if (!person) return;
+
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title"><i class="fas fa-clock"></i> Edit Working Hours</h2>
+                        <button class="modal-close">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Adjust working hours for <strong>${person.name}</strong> (${person.location})</p>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0;">
+                            <div class="form-group">
+                                <label for="editWorkStart">Start Time</label>
+                                <input type="time" id="editWorkStart" value="${person.workStart.toString().padStart(2, '0')}:00">
+                            </div>
+                            <div class="form-group">
+                                <label for="editWorkEnd">End Time</label>
+                                <input type="time" id="editWorkEnd" value="${person.workEnd.toString().padStart(2, '0')}:00">
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 20px;">
+                            <button class="btn" style="width: 100%;" onclick="saveWorkingHours(${personId})">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            modal.querySelector('.modal-close').addEventListener('click', () => {
+                modal.remove();
+            });
+            
+            document.body.appendChild(modal);
+        }
+
+        function saveWorkingHours(personId) {
+            const start = document.getElementById('editWorkStart').value;
+            const end = document.getElementById('editWorkEnd').value;
+            
+            if (!start || !end) {
+                showAlert('Please specify both start and end times', 'warning');
+                return;
+            }
+            
+            const person = teamMembers.find(p => p.id === personId);
+            if (person) {
+                person.workStart = parseInt(start.split(':')[0]);
+                person.workEnd = parseInt(end.split(':')[0]);
+                updateDisplay();
+                document.querySelector('.modal-overlay')?.remove();
+                showAlert('Working hours updated successfully!', 'success');
+            }
+        }
+
+        function detectMeetingConflicts() {
+            // Simulated conflict detection
+            if (meetings.length > 1 && Math.random() > 0.5) {
+                const alert = document.createElement('div');
+                alert.className = 'conflict-alert';
+                alert.innerHTML = `
+                    <h3 style="margin-bottom: 10px;"><i class="fas fa-exclamation-triangle"></i> Meeting Conflict Detected!</h3>
+                    <p>Your "Daily Standup" meeting overlaps with "Product Review" at 16:00 UTC.</p>
+                    <button onclick="this.parentElement.remove()" style="
+                        background: rgba(255,255,255,0.2); border: none; color: white;
+                        padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-top: 10px;
+                    ">Dismiss</button>
+                `;
+                
+                document.body.appendChild(alert);
+                
+                setTimeout(() => {
+                    if (alert.parentElement) alert.remove();
+                }, 10000);
+            }
+        }
+
+        function exportSchedule() {
+            showAlert('Schedule exported successfully!', 'success');
+            
+            // Simulate download
+            setTimeout(() => {
+                const data = {
+                    teamMembers,
+                    meetings,
+                    exportedAt: new Date().toISOString()
+                };
+                
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+                const downloadAnchorNode = document.createElement('a');
+                downloadAnchorNode.setAttribute("href", dataStr);
+                downloadAnchorNode.setAttribute("download", "timesync-export.json");
+                document.body.appendChild(downloadAnchorNode);
+                downloadAnchorNode.click();
+                downloadAnchorNode.remove();
+            }, 1000);
+        }
+
+        function showAlert(message, type) {
+            const alert = document.createElement('div');
+            alert.className = 'conflict-alert';
+            alert.style.background = type === 'success' ? 'linear-gradient(135deg, #2ec4b6 0%, #06d6a0 100%)' : 
+                              type === 'warning' ? 'linear-gradient(135deg, #ff9f1c 0%, #ffbf69 100%)' :
+                              type === 'danger' ? 'linear-gradient(135deg, #e71d36 0%, #ff6b6b 100%)' :
+                              'linear-gradient(135deg, #4361ee 0%, #4895ef 100%)';
+            
+            alert.innerHTML = `
+                <p style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 
+                                       type === 'warning' ? 'exclamation-triangle' : 
+                                       type === 'danger' ? 'exclamation-circle' : 'info-circle'}"></i>
+                    ${message}
+                </p>
+                <button onclick="this.parentElement.remove()" style="
+                    background: rgba(255,255,255,0.2); border: none; color: white;
+                    padding: 5px 10px; border-radius: 8px; cursor: pointer; margin-top: 10px;
+                    font-size: 13px;
+                ">Dismiss</button>
+            `;
+            
+            document.body.appendChild(alert);
+            
+            setTimeout(() => {
+                if (alert.parentElement) alert.remove();
+            }, 5000);
+        }
+
+        // Initialize when page loads
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
